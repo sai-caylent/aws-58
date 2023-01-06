@@ -4,8 +4,8 @@ variable "cache_policy_name" {
 data "aws_cloudfront_cache_policy" "cache_policy" {
   name = var.cache_policy_name
 }
-resource "aws_cloudfront_distribution" "s3_distribution" {
 
+resource "aws_cloudfront_distribution" "s3" {
 origin {
     domain_name = "test.sai.cloudns.ph.s3-website.us-east-2.amazonaws.com"
     origin_id   = aws_s3_bucket.comain.bucket_regional_domain_name
@@ -14,12 +14,11 @@ origin {
       https_port = "443"
       origin_protocol_policy = "http-only"
       origin_ssl_protocols = ["TLSv1", "TLSv1.1", "TLSv1.2"]
-    }
-    
+    }   
 }
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "this is for testing"
+  comment             = "testing for f45 project S3 bucket"
   aliases = ["test.sai.cloudns.ph"]
 
 
