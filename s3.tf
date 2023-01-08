@@ -14,43 +14,37 @@ resource "aws_s3_bucket_policy" "comain" {
   policy = data.aws_iam_policy_document.comain.json
 }
 data "aws_iam_policy_document" "comain" {
+  #policy for OAI
   statement {
+    sid    = "Access from CDN"
+    effect = "Allow"
     principals {
-      type        = "*"
-      identifiers = ["*"]
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.oai.iam_arn]
     }
-
-    actions = [
-      "s3:GetObject",
-      "s3:ListBucket",
-    ]
-
+    actions = ["s3:GetObject", ]
     resources = [
-      aws_s3_bucket.comain.arn,
+
       "${aws_s3_bucket.comain.arn}/*",
     ]
   }
-  #   statement {
-  #   sid    = "Access from CDN"
-  #   effect = "Allow"
-  #   principals {
-  #     type        = "Service"
-  #     identifiers = ["cloudfront.amazonaws.com", ]
-  #   }
-  #   actions = ["s3:GetObject", ]
-  #   resources = [
+  #policy for OAC
 
-  #     "${aws_s3_bucket.comain.arn}/*",
-  #   ]
-  #   condition {
-  #     test     = "StringEquals"
-  #     variable = "AWS:SourceArn"
-  #     values = [
-  #       # "arn:aws:cloudfront::131578276461:distribution/E20BY5DTHU1RWA",
-  #         aws_cloudfront_distribution.s3_distribution.arn,
-  #     ]
-  #   }
-  # }
+  statement {
+    actions = ["s3:GetObject"]
+
+    resources = ["${aws_s3_bucket.comain.arn}/*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.s3.arn]
+    }
+  }
 }
 resource "aws_s3_bucket_website_configuration" "example2" {
   bucket = aws_s3_bucket.comain.id
